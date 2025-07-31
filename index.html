@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>D&D Character Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      color: #f4e9d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      background: url('https://i.redd.it/8n6ndmm679h21.gif') no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: blur(2px);
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .ascii-art {
+      font-size: 16px;
+      color: #ff99cc;
+      margin-bottom: 20px;
+      animation: wiggle 2s infinite ease-in-out;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(1deg); }
+      50% { transform: rotate(-1deg); }
+      75% { transform: rotate(1deg); }
+    }
+
+    .box {
+      background: rgba(44, 44, 44, 0.9);
+      border: 4px solid #8b5a2b;
+      padding: 20px;
+      width: 90%;
+      max-width: 700px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #000;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .btn {
+      margin: 20px 10px 0 10px;
+      background-color: #8b5a2b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Press Start 2P', cursive;
+      cursor: pointer;
+      font-size: 12px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .btn:hover {
+      box-shadow: 0 0 10px #ffcc66, 0 0 20px #ffcc66;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      text-align: left;
+      margin-top: 20px;
+      color: #fff4d6;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .pop {
+      animation: popIn 0.4s ease;
+    }
+
+    #quest-box {
+      margin-top: 15px;
+      padding: 10px;
+      background: #2d1f14;
+      color: #ffcc99;
+      border-radius: 10px;
+      font-size: 10px;
+    }
+
+    #scroll {
+      margin-top: 20px;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    #scroll:hover {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    #love-letter {
+      margin-top: 20px;
+      background: #1d1d1d;
+      padding: 20px;
+      border-radius: 10px;
+      color: #ffdde1;
+      font-size: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LANDING PAGE -->
+  <div id="landing" class="box">
+    <div class="ascii-art">˗ˏˋ ♡ ˎˊ˗</div>
+    <h2>Welcome, Adventurer!</h2>
+    <p>Are you ready to meet your D&D character?</p>
+    <button class="btn" onclick="startGame()">Start</button>
+  </div>
+
+  <!-- GENERATOR PAGE -->
+  <div id="generator" class="box hidden">
+    <div class="ascii-art">˗ˏˋ ♡ ˎˊ˗</div>
+    <h2>D&D Character Generator</h2>
+    <button class="btn" onclick="generateCharacter()">Generate Character</button>
+    <pre id="character"></pre>
+    <button class="btn" onclick="generateQuest()">Mini Side Quest</button>
+    <div id="quest-box" class="hidden"></div>
+    <div id="end-buttons" class="hidden">
+      <button class="btn" onclick="generateCharacter()">Generate Again</button>
+      <button class="btn" onclick="endGame()">End Game</button>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="ending" class="box hidden">
+    <h2>🧡 Thank you for playing! 🧡</h2>
+    <p>May your dice always roll high and your love always be chaotic good.</p>
+    <div id="scroll" onclick="revealScroll()">🎀</div>
+    <div id="love-letter">
+      Dearest Boyfie,<br><br>
+      From the moment you made your way into my life, it’s been one big, beautiful campaign. I can't wait to see where this adventure takes us and I hope that even if we don't roll a natural 20 at each obstacle, we can still have fun on this journey together, forever. <br><br>
+      I love you so very much.<br><br>
+      💛 Forever your love — Madhu
+    </div>
+  </div>
+
+  <script>
+    const names = ["Marcus the Mighty", "Sir Heckladon", "The Clumsy Yapper", "Boyfie of Destiny", "Barbarian of No Patience", "Lord Heckasaur"];
+    const classes = ["Paladin of Coding", "Bard of Niche Interests", "Barbarian of goofiness", "Chaotic Love Cleric", "Detective of Dungeon Crimes"];
+    const races = ["Half-Tiefling (Half-Softie)", "Human (with Bard vibes)", "High Elf of Hyperfocus", "Goblin of Goofiness", "Emotionally intelligent Sorcerer"];
+    const weapons = ["Sword of the Forgetful Hero (only sharp on odd days)", "Blade of Euphoria", "Notebook of 1000 snoozed alarms", "Sneaky Sneaker of project Zomboid", "Critical Dice of girlfie's Blessing"];
+    const skills = ["+10 to Coding Spells", "+8 to Niche Info Dumping", "+5 to Romantic Distractions", "+2 to Memory Saving (only works with the notes app)", "Passive: Instantly charmed by Madhu's presence"];
+    const weaknesses = ["Cannot resist saying 'heck'", "Rolls disadvantage on waiting patiently", "Crit fails memory checks without notes", "Too powerful when cuddled", "Often distracted by his own thoughts"];
+    const bonds = ["Swore an oath to protect Madhu from all emotional damage💜", "Will rage if denied scratches", "Bound by ancient runes to always yap about new hobbies", "Takes psychic damage when Madhu is sad", "Would abandon all quests just to hear her laugh"];
+    const quotes = [
+      '"I would like to rage!"',
+      '"Bidet."',
+      '"Heck!Heckaladon,Heckasaur"',
+      '"Why wait patiently if I can just GOOOOOOOOO."',
+      '"Love is a debuff I’m willing to accept."',
+      '"Zombies can\'t get me, not until I break this window and set off 15 alarms at least."'
+    ];
+
+    const quests = [
+      "💖 Cast the Spell of Snuggles: Hug your girlfie within the next 10 seconds!",
+      "🍪 Retrieve the Sacred Snack: Go grab a smack and share it hehe.",
+      "🗣️ Info Dump Time: Share one random cool fact with your girlfie.",
+      "🎲 Roll a D20: If you roll above 10, you must compliment her twice!",
+      "🛒 Check the Inventory: Go find a thing of the color girlfie says.",
+      "👀 Stealth Mission: Try to sneak up and boop her nose without being caught!"
+    ];
+
+    function rand(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function startGame() {
+      document.getElementById("landing").classList.add("hidden");
+      document.getElementById("generator").classList.remove("hidden");
+    }
+
+    function generateCharacter() {
+      const result = [
+        "\n✨ Your D&D Character is... ✨\n",
+        `Name: ${rand(names)}`,
+        `Class: ${rand(classes)}`,
+        `Race: ${rand(races)}`,
+        `Weapon of Choice: ${rand(weapons)}`,
+        `Special Skill: ${rand(skills)}`,
+        `Weakness: ${rand(weaknesses)}`,
+        `Bond: ${rand(bonds)}`,
+        `Favourite Quote: ${rand(quotes)}`,
+        "\n🧡 Character lovingly generated by your chaotic, emotional overthinker - girlfie 🧡"
+      ].join("\n");
+
+      const charBox = document.getElementById("character");
+      charBox.textContent = result;
+      charBox.classList.remove("pop");
+      void charBox.offsetWidth;
+      charBox.classList.add("pop");
+      document.getElementById("end-buttons").classList.remove("hidden");
+    }
+
+    function generateQuest() {
+      const questBox = document.getElementById("quest-box");
+      questBox.textContent = rand(quests);
+      questBox.classList.remove("hidden");
+    }
+
+    function endGame() {
+      document.getElementById("generator").classList.add("hidden");
+      document.getElementById("ending").classList.remove("hidden");
+    }
+
+    function revealScroll() {
+      const letter = document.getElementById("love-letter");
+      letter.style.display = letter.style.display === "block" ? "none" : "block";
+    }
+  </script>
+</body>
+</html>
